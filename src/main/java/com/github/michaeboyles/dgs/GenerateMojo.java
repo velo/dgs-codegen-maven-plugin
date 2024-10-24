@@ -15,32 +15,35 @@
  */
 package com.github.michaeboyles.dgs;
 
+import static com.github.michaeboyles.dgs.FileUtil.getCanonicalFile;
+import static com.github.michaeboyles.dgs.LanguageUtil.isProbablyKotlin;
 import com.netflix.graphql.dgs.codegen.CodeGen;
+
 import com.netflix.graphql.dgs.codegen.CodeGenConfig;
 import com.netflix.graphql.dgs.codegen.Language;
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.github.michaeboyles.dgs.FileUtil.getCanonicalFile;
-import static com.github.michaeboyles.dgs.LanguageUtil.isProbablyKotlin;
-
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 @SuppressWarnings({ "FieldMayBeFinal", "FieldCanBeLocal", "MismatchedQueryAndUpdateOfCollection", "unused" })
 public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../resources/schema")
     private File[] schemaPaths = {};
+
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/annotations/")
+    private File outputDir;
+
+    @Parameter(defaultValue = "${project.build.directory}/generated-examples")
+    private File examplesOutputDir;
 
     @Parameter(required = true)
     private String packageName;
@@ -54,47 +57,22 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "types")
     private String subPackageNameTypes;
 
+    @Parameter(defaultValue = "docs")
+    private String subPackageNameDocs;
+
     @Parameter
     private String language = isProbablyKotlin() ? "KOTLIN" : "JAVA";
 
     @Parameter
-    private Map<String, String> typeMapping = new HashMap<>();
-
-    @Parameter
     private boolean generateBoxedTypes = false;
+    @Parameter
+    private boolean generateIsGetterForPrimitiveBooleanFields = false;
 
     @Parameter
     private boolean generateClient = false;
 
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources/annotations/")
-    private File outputDir;
-
-    @Parameter(defaultValue = "${project.build.directory}/generated-examples")
-    private File examplesOutputDir;
-
     @Parameter
-    private List<String> includeQueries = new ArrayList<>();
-
-    @Parameter
-    private List<String> includeMutations = new ArrayList<>();
-
-    @Parameter
-    private List<String> includeSubscriptions = new ArrayList<>();
-
-    @Parameter
-    private boolean skipEntityQueries = false;
-
-    @Parameter
-    private boolean shortProjectionNames = false;
-
-    @Parameter
-    private boolean generateDataTypes = true;
-
-    @Parameter
-    private int maxProjectionDepth = 10;
-
-    @Parameter
-    private boolean omitNullInputFields = false;
+    private boolean generateClientV2 = false;
 
     @Parameter
     private boolean generateInterfaces = false;
@@ -106,6 +84,33 @@ public class GenerateMojo extends AbstractMojo {
     private boolean generateKotlinClosureProjections = false;
 
     @Parameter
+    private Map<String, String> typeMapping = new HashMap<>();
+
+    @Parameter
+    private Set<String> includeQueries = new HashSet<>();
+
+    @Parameter
+    private Set<String> includeMutations = new HashSet<>();
+
+    @Parameter
+    private Set<String> includeSubscriptions = new HashSet<>();
+
+    @Parameter
+    private boolean skipEntityQueries = false;
+
+    @Parameter
+    private boolean shortProjectionNames = false;
+
+    @Parameter
+    private boolean generateDataTypes = true;
+
+    @Parameter
+    private boolean omitNullInputFields = false;
+
+    @Parameter
+    private int maxProjectionDepth = 10;
+
+    @Parameter
     private boolean kotlinAllFieldsOptional = false;
 
     @Parameter
@@ -115,10 +120,21 @@ public class GenerateMojo extends AbstractMojo {
     private boolean generateInterfaceSetters = true;
 
     @Parameter
+    private boolean generateInterfaceMethodsForInterfaceFields = false;
+
+    @Parameter
+    private boolean generateDocs = false;
+
+    @Parameter(defaultValue = "${project.build.directory}/generated-docs")
+    private File generatedDocsFolder;
+
+    @Parameter
     private Map<String, String> includeImports = new HashMap<>();
 
     @Parameter
     private Map<String, Map<String, String>> includeEnumImports = new HashMap<>();
+    @Parameter
+    private Map<String, Map<String, String>> includeClassImports = new HashMap<>();
 
     @Parameter
     private boolean generateCustomAnnotations = false;
@@ -131,6 +147,9 @@ public class GenerateMojo extends AbstractMojo {
 
     @Parameter
     private boolean addGeneratedAnnotation = false;
+
+    @Parameter
+    private boolean disableDatesInGeneratedAnnotation = false;
 
     @Parameter
     private boolean addDeprecatedAnnotation = false;
@@ -153,9 +172,12 @@ public class GenerateMojo extends AbstractMojo {
                 subPackageNameClient,
                 subPackageNameDatafetchers,
                 subPackageNameTypes,
+                subPackageNameDocs,
                 Language.valueOf(language.toUpperCase()),
                 generateBoxedTypes,
+                generateIsGetterForPrimitiveBooleanFields,
                 generateClient,
+                generateClientV2,
                 generateInterfaces,
                 generateKotlinNullableClasses,
                 generateKotlinClosureProjections,
@@ -171,12 +193,17 @@ public class GenerateMojo extends AbstractMojo {
                 kotlinAllFieldsOptional,
                 snakeCaseConstantNames,
                 generateInterfaceSetters,
+                generateInterfaceMethodsForInterfaceFields,
+                generateDocs,
+                getCanonicalFile(generatedDocsFolder).toPath(),
                 includeImports,
                 includeEnumImports,
+                includeClassImports,
                 generateCustomAnnotations,
                 javaGenerateAllConstructor,
                 implementSerializable,
                 addGeneratedAnnotation,
+                disableDatesInGeneratedAnnotation,
                 addDeprecatedAnnotation);
 
         getLog().info("Codegen config: " + config);
@@ -184,4 +211,5 @@ public class GenerateMojo extends AbstractMojo {
         new CodeGen(config).generate();
         project.addCompileSourceRoot(getCanonicalFile(outputDir).getAbsolutePath());
     }
+
 }
