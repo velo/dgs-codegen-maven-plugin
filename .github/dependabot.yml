@@ -10,3 +10,13 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
+  - package-ecosystem: "maven"
+    directory: "/src/it/javaTest/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 100
+  - package-ecosystem: "maven"
+    directory: "/src/it/kotlinTest/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 100
