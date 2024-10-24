@@ -77,7 +77,7 @@
         <dependency> <!-- Needed for some DGS generated classes -->
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.12.5</version>
+            <version>2.18.0</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.graphql.dgs.codegen</groupId>
