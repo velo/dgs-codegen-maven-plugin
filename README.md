@@ -10,7 +10,7 @@ Add the following plugin to your Maven build:
 
 ```xml
 <plugin>
-    <groupId>com.github.michaelboyles</groupId>
+    <groupId>com.marvinformatics</groupId>
     <artifactId>dgs-codegen-maven-plugin</artifactId>
     <version>1.3.0</version>
     <executions>
@@ -24,15 +24,6 @@ Add the following plugin to your Maven build:
         </execution>
     </executions>
 </plugin>
-```
-
-The dependency is available from [jitpack.io](https://jitpack.io/). You can use the following repo declaration:
-
-```xml
-<pluginRepository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</pluginRepository>
 ```
 
 ## Goals
