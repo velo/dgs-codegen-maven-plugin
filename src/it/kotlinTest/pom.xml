@@ -89,7 +89,7 @@
         <dependency>
             <groupId>com.netflix.graphql.dgs</groupId>
             <artifactId>graphql-dgs</artifactId>
-            <version>9.1.3</version>
+            <version>10.0.1</version>
         </dependency>
         <dependency> <!-- Needed for some DGS generated classes -->
             <groupId>com.fasterxml.jackson.core</groupId>
